@@ -1,0 +1,27 @@
+.label {
+  display: flex;
+  flex-direction: column;
+
+  width: 60%;
+
+  margin: auto;
+  padding-top: 20px;
+
+  font-size: 20px;
+
+  background-color: #fff;
+
+  border-radius: 5px;
+}
+
+.input {
+  width: 55%;
+  height: 25px;
+
+  margin: auto;
+  padding: 3px;
+}
+
+input:focus::-webkit-input-placeholder {
+  color: transparent;
+}

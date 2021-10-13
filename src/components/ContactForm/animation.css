@@ -1,0 +1,12 @@
+.animation-appear-active {
+  opacity: 0;
+  transform: translate(0px, -50px);
+}
+
+.animation-enter-done {
+  opacity: 1;
+  transition: opacity 500ms;
+  color: blue;
+  transition-property: all;
+  transition-duration: 2s;
+}
