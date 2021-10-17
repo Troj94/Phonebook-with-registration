@@ -1,29 +1,26 @@
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { filterContacts } from 'redux/actions';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
+import { getFilter, changeFilter } from 'redux/reducer';
 import css from 'components/ContactFilter/ContactFilter.module.css';
 
-function ContactFilter({ findContact }) {
+function Filter() {
+  const filterValue = useSelector(getFilter);
+  const dispatch = useDispatch();
+  const inputId = uuidv4();
+
   return (
     <label className={css.label}>
       Find contact by name
       <input
+        id={inputId}
         className={css.input}
-        name="find"
         title="Введите имя или название контакта"
-        onChange={findContact}
+        value={filterValue}
+        onChange={e => dispatch(changeFilter(e.target.value))}
+        placeholder="Name"
       />
     </label>
   );
 }
 
-const mapDispatchToProps = dispatch => ({
-  findContact: e => dispatch(filterContacts(e.target.value)),
-});
-
-export default connect(null, mapDispatchToProps)(ContactFilter);
-
-ContactFilter.propTypes = {
-  findContact: PropTypes.func.isRequired,
-};
+export default Filter;

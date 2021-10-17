@@ -1,17 +1,18 @@
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { deleteContact } from 'redux/actions';
+import { phonebookApi } from 'redux/api';
 import css from 'components/ContactItem/ContactItem.module.css';
 
-function ContactItem({ id, name, number, deleteContact }) {
+function ContactItem({ id, name, number }) {
+  const [deleteContact] = phonebookApi.useDeleteContactMutation();
+
   return (
-    <li className={css.contactItem}>
+    <li className={css.contactItem} key={id}>
       <span>{name}: </span>
       <span>{number} </span>
       <span>
         <button
           type="button"
-          onClick={deleteContact}
+          onClick={() => deleteContact(id)}
           id={id}
           className={css.button}
         >
@@ -22,15 +23,10 @@ function ContactItem({ id, name, number, deleteContact }) {
   );
 }
 
-const mapDispatchToProps = dispatch => ({
-  deleteContact: e => dispatch(deleteContact(e.target.id)),
-});
-
-export default connect(null, mapDispatchToProps)(ContactItem);
+export default ContactItem;
 
 ContactItem.propTypes = {
   name: PropTypes.string.isRequired,
   number: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
-  deleteContact: PropTypes.func.isRequired,
 };

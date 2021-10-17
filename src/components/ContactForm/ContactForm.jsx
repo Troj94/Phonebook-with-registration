@@ -1,46 +1,57 @@
-import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { useState } from 'react';
-import { connect } from 'react-redux';
-import { addContact } from 'redux/actions';
+import { phonebookApi } from 'redux/api';
 import { CSSTransition } from 'react-transition-group';
 import Notiflix from 'notiflix';
 import css from 'components/ContactForm/ContactForm.module.css';
 import 'components/ContactForm/animation.css';
 
-function ContactForm({ onSubmit, contacts }) {
+import { Spinner } from 'components/Loader/Loader';
+
+function ContactForm() {
+  const { data: contacts = [] } = phonebookApi.useFetchContactsQuery();
+  const [addContact] = phonebookApi.useAddContactMutation();
+
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const [loaderIsActive, setLoaderIsActive] = useState(false);
+
+  useEffect(() => {
+    setName('');
+    setNumber('');
+  }, [contacts.length]);
 
   let id = {
     nameId: uuidv4(),
     numberId: uuidv4(),
   };
 
-  function formSubmit(event) {
+  async function formSubmit(event) {
     event.preventDefault();
+    setLoaderIsActive(true);
 
-    if (contacts.find(contact => contact.name === name)) {
+    if (
+      contacts.find(
+        contact => contact.name.toLowerCase() === name.toLowerCase(),
+      )
+    ) {
       Notiflix.Notify.failure(`${name} is already in contacts`);
-    } else {
-      onSubmit(name, number);
-      setName('');
-      setNumber('');
+      return;
     }
+    addContact({ name, number }).finally(() => setLoaderIsActive(false));
   }
 
   function formChange(event) {
-    const { name, value } = event.target;
-    switch (name) {
+    switch (event.target.name) {
       case 'name':
-        setName(value);
-        break;
+        return setName(event.target.value);
+
       case 'number':
-        setNumber(value);
-        break;
+        return setNumber(event.target.value);
 
       default:
-        break;
+        return;
     }
   }
 
@@ -54,7 +65,6 @@ function ContactForm({ onSubmit, contacts }) {
       >
         <h1>Phonebook</h1>
       </CSSTransition>
-
       <form onSubmit={formSubmit} className={css.form}>
         <label className={css.label}>
           Name
@@ -90,28 +100,12 @@ function ContactForm({ onSubmit, contacts }) {
           Add contact
         </button>
       </form>
+      {loaderIsActive && <Spinner />}
     </div>
   );
 }
 
-const mapStateToProps = ({ contacts: { items } }) => {
-  return {
-    contacts: items,
-  };
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    onSubmit: (name, number) => dispatch(addContact(name, number)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  contacts: PropTypes.array.isRequired,
-};
+export default ContactForm;
 
 Notiflix.Notify.init({
   timeout: 2500,
