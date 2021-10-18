@@ -37,6 +37,7 @@ function ContactForm() {
       )
     ) {
       Notiflix.Notify.failure(`${name} is already in contacts`);
+      setLoaderIsActive(false);
       return;
     }
     addContact({ name, number }).finally(() => setLoaderIsActive(false));
