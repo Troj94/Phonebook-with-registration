@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
-import { phonebookApi } from 'redux/api';
+import { useDispatch } from 'react-redux';
+import * as phonebookOperations from 'redux/phonebook/phonebook-operations';
+
 import css from 'components/ContactItem/ContactItem.module.css';
 
 function ContactItem({ id, name, number }) {
-  const [deleteContact] = phonebookApi.useDeleteContactMutation();
+  const dispatch = useDispatch();
 
   return (
     <li className={css.contactItem} key={id}>
@@ -11,10 +13,10 @@ function ContactItem({ id, name, number }) {
       <span>{number} </span>
       <span>
         <button
-          type="button"
-          onClick={() => deleteContact(id)}
-          id={id}
           className={css.button}
+          id={id}
+          type="button"
+          onClick={() => dispatch(phonebookOperations.fetchDeleteContact(id))}
         >
           Delete
         </button>

@@ -7,21 +7,25 @@
 
   margin: auto;
 
-  background-color: #fff;
+  /* background-color: #fff; */
 
   border-radius: 5px;
 }
 
 .label {
-  font-size: 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0 10px;
+
+  font-size: 20px;
 }
 
 .input {
   display: flex;
   flex-direction: column;
 
-  width: 55%;
-  height: 25px;
+  width: 60%;
+  height: 35px;
 
   margin: auto;
   padding: 3px;
@@ -32,7 +36,7 @@
   align-items: center;
   justify-content: center;
 
-  width: 30%;
+  width: 20%;
   height: 25px;
   min-width: 120px;
 

@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { phonebookApi } from 'redux/api';
-import { CSSTransition } from 'react-transition-group';
+import { useDispatch, useSelector } from 'react-redux';
+import * as phonebookSelectors from 'redux/phonebook/phonebook-selectors';
+import * as phonebookOperations from 'redux/phonebook/phonebook-operations';
+import Spinner from 'components/Loader/Loader';
+
 import Notiflix from 'notiflix';
 import css from 'components/ContactForm/ContactForm.module.css';
-import 'components/ContactForm/animation.css';
-
-import { Spinner } from 'components/Loader/Loader';
 
 function ContactForm() {
-  const { data: contacts = [] } = phonebookApi.useFetchContactsQuery();
-  const [addContact] = phonebookApi.useAddContactMutation();
+  const dispatch = useDispatch();
+  const contacts = useSelector(phonebookSelectors.getContacts);
+  const error = useSelector(phonebookSelectors.getError);
 
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
@@ -22,14 +22,9 @@ function ContactForm() {
     setNumber('');
   }, [contacts.length]);
 
-  let id = {
-    nameId: uuidv4(),
-    numberId: uuidv4(),
-  };
-
   async function formSubmit(event) {
-    event.preventDefault();
     setLoaderIsActive(true);
+    event.preventDefault();
 
     if (
       contacts.find(
@@ -40,74 +35,66 @@ function ContactForm() {
       setLoaderIsActive(false);
       return;
     }
-    addContact({ name, number }).finally(() => setLoaderIsActive(false));
+    dispatch(phonebookOperations.fetchAddContact({ name, number })).finally(
+      () => Notiflix.Notify.success('The contacts is added'),
+      setLoaderIsActive(false),
+    );
   }
 
   function formChange(event) {
     switch (event.target.name) {
       case 'name':
         return setName(event.target.value);
-
       case 'number':
         return setNumber(event.target.value);
-
       default:
         return;
     }
   }
 
+  useEffect(() => {
+    if (error) {
+      Notiflix.Notify.failure('Something gone wrong, try again');
+      return;
+    }
+  }, [contacts, error]);
+
   return (
-    <div>
-      <CSSTransition
-        timeout={500}
-        classNames="animation"
-        appear={true}
-        in={true}
-      >
-        <h1>Phonebook</h1>
-      </CSSTransition>
-      <form onSubmit={formSubmit} className={css.form}>
-        <label className={css.label}>
-          Name
-          <input
-            id={id.nameId}
-            value={name}
-            onChange={formChange}
-            placeholder="Name"
-            type="text"
-            name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
-            required
-            className={css.input}
-          />
-        </label>
-        <label className={css.label}>
-          Number
-          <input
-            id={id.numberId}
-            value={number}
-            onChange={formChange}
-            placeholder="Number"
-            type="tel"
-            name="number"
-            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
-            required
-            className={css.input}
-          />
-        </label>
-        <button type="submit" className={css.button}>
-          Add contact
-        </button>
-      </form>
+    <form className={css.form} autoComplete={'on'} onSubmit={formSubmit}>
+      <label className={css.label}>
+        Name:
+        <input
+          className={css.input}
+          type="text"
+          name="name"
+          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+          title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
+          placeholder="Name"
+          required={true}
+          value={name}
+          onChange={formChange}
+        />
+      </label>
+      <label className={css.label}>
+        Number:
+        <input
+          className={css.input}
+          type="tel"
+          name="number"
+          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+          title="Номер телефона должен состоять из цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
+          placeholder="Number"
+          required={true}
+          value={number}
+          onChange={formChange}
+        />
+      </label>
+      <button className={css.button} type="submit">
+        Add contact
+      </button>
       {loaderIsActive && <Spinner />}
-    </div>
+    </form>
   );
 }
 
 export default ContactForm;
-
-Notiflix.Notify.init({
-  timeout: 2500,
-});

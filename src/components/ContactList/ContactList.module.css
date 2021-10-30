@@ -1,8 +1,7 @@
 .contactList {
-  background-color: #fff;
-
   border-radius: 5px;
   width: 60%;
 
   margin: auto;
+  padding: 15px 0 15px;
 }

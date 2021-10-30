@@ -1,26 +1,30 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { v4 as uuidv4 } from 'uuid';
-import { getFilter, changeFilter } from 'redux/reducer';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import * as phonebookReducer from 'redux/phonebook/phonebook-reducer';
+
 import css from 'components/ContactFilter/ContactFilter.module.css';
 
-function Filter() {
-  const filterValue = useSelector(getFilter);
+function ContactFilter() {
   const dispatch = useDispatch();
-  const inputId = uuidv4();
+  const [filterValue, setFilterValue] = useState('');
+
+  useEffect(() => {
+    dispatch(phonebookReducer.changeFilter(filterValue));
+  }, [dispatch, filterValue]);
 
   return (
     <label className={css.label}>
-      Find contact by name
+      Find contacts by name:
       <input
-        id={inputId}
         className={css.input}
-        title="Введите имя или название контакта"
-        value={filterValue}
-        onChange={e => dispatch(changeFilter(e.target.value))}
+        title="Start to write name of contact to find"
+        type="text"
         placeholder="Name"
+        value={filterValue}
+        onChange={event => setFilterValue(event.target.value)}
       />
     </label>
   );
 }
 
-export default Filter;
+export default ContactFilter;
